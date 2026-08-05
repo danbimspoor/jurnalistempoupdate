@@ -19,9 +19,7 @@ export function Footer() {
                 Suara Fakta, Denyut Peristiwa
               </p>
             </Link>
-            <p className="text-white/40 text-sm leading-relaxed">
-              Platform berita terpercaya yang menyajikan fakta akurat dan peristiwa terkini dengan integritas jurnalistik tinggi.
-            </p>
+
             <div className="flex gap-4">
               <Globe className="w-5 h-5 text-white/30 hover:text-red-600 cursor-pointer transition-colors" />
               <Share2 className="w-5 h-5 text-white/30 hover:text-red-600 cursor-pointer transition-colors" />

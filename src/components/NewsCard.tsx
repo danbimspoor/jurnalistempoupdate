@@ -38,7 +38,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-zinc-700 border border-white/20 flex items-center justify-center font-bold text-xs italic text-red-500">JT</div>
             <div className="text-[10px] text-white/40">
-              <p className="font-bold text-white/80">{article.author}</p>
+              <p className="font-bold text-white/80">{article.author_name}</p>
               <p>{formatDate(article.published_at)}</p>
             </div>
           </div>
