@@ -5,7 +5,7 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "news_db"
-database_id = "local-db"
+database_id = "c34d8391-3ff0-46e5-bafe-90f3fda7edd1"
 
 [[r2_buckets]]
 binding = "BUCKET"
