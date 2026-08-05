@@ -1,0 +1,6 @@
+{
+  "name": "JurnalisTempo Update",
+  "description": "Modern news portal 'Suara Fakta, Denyut Peristiwa' built with React 19 and Cloudflare Pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
