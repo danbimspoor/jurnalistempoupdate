@@ -4,7 +4,6 @@ import { onRequest as __api_upload_ts_onRequest } from "/app/applet/functions/ap
 import { onRequest as __robots_txt_ts_onRequest } from "/app/applet/functions/robots.txt.ts"
 import { onRequest as __rss_xml_ts_onRequest } from "/app/applet/functions/rss.xml.ts"
 import { onRequest as __sitemap_xml_ts_onRequest } from "/app/applet/functions/sitemap.xml.ts"
-import { onRequest as __test_ts_onRequest } from "/app/applet/functions/test.ts"
 
 export const routes = [
     {
@@ -48,12 +47,5 @@ export const routes = [
       method: "",
       middlewares: [],
       modules: [__sitemap_xml_ts_onRequest],
-    },
-  {
-      routePath: "/test",
-      mountPath: "/",
-      method: "",
-      middlewares: [],
-      modules: [__test_ts_onRequest],
     },
   ]

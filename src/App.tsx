@@ -9,11 +9,14 @@ import { SearchResults } from './pages/SearchResults';
 import { AuthorDetail } from './pages/AuthorDetail';
 import { About } from './pages/About';
 
-function App() {
+export default function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-[#0a0a0a] flex flex-col font-sans selection:bg-red-600 selection:text-white">
+          <div className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.3em] py-1 text-center sticky top-0 z-[100]">
+            JURNALISTEMPO UPDATE - v1.0.1
+          </div>
           <Header />
           <main className="flex-grow">
             <Routes>
@@ -30,5 +33,3 @@ function App() {
     </HelmetProvider>
   );
 }
-
-export default App;
