@@ -4,11 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "./dev.sh",
+    "dev": "npx wrangler pages dev --port 3000 --ip 0.0.0.0 --local --inspector-port 0",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit",
-    "db:setup": "npx wrangler d1 execute news_db --local --file=./schema.sql"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -34,7 +33,6 @@
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "typescript": "~5.8.2"
   }
 }

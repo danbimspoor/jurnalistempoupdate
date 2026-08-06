@@ -15,17 +15,12 @@ export function SearchResults() {
     async function fetchResults() {
       setLoading(true);
       try {
-        // Simplified search via API filter if backend supports it, or just fetch all and filter
-        const res = await fetch('/api/news');
-        const data: NewsArticle[] = await res.json();
-        const filtered = data.filter(a => 
-          a.title.toLowerCase().includes(query.toLowerCase()) || 
-          a.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          a.tags?.toLowerCase().includes(query.toLowerCase())
-        );
-        setArticles(filtered);
+        const res = await fetch(`/api/news?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        setArticles(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
+        setArticles([]);
       } finally {
         setLoading(false);
       }

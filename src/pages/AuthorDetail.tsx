@@ -14,21 +14,24 @@ export function AuthorDetail() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`/api/news`); // In real app, filter by author in API
-        const data: NewsArticle[] = await res.json();
-        const filtered = data.filter(a => a.author_id === id);
-        setArticles(filtered);
+        const res = await fetch(`/api/news?author_id=${id}`);
+        const data = await res.json();
         
-        // Mock author data fetch if not in API
-        setAuthor({
-          id: id!,
-          name: filtered[0]?.author_name || 'Reporter JurnalisTempo',
-          bio: 'Dedikasi untuk menyajikan fakta dan berita terpercaya untuk masyarakat Indonesia.',
-          avatar_url: filtered[0]?.author_avatar || 'https://picsum.photos/seed/author/200/200',
-          role: 'Reporter Senior'
-        });
+        if (Array.isArray(data) && data.length > 0) {
+          setArticles(data);
+          setAuthor({
+            id: id!,
+            name: data[0].author_name,
+            bio: data[0].author_bio || 'Dedikasi untuk menyajikan fakta dan berita terpercaya untuk masyarakat Indonesia.',
+            avatar_url: data[0].author_avatar || 'https://picsum.photos/seed/author/200/200',
+            role: data[0].author_role || 'Reporter Senior'
+          });
+        } else {
+          setArticles([]);
+        }
       } catch (err) {
         console.error(err);
+        setArticles([]);
       } finally {
         setLoading(false);
       }

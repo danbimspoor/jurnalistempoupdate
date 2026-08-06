@@ -1,41 +1,51 @@
-/// <reference types="@cloudflare/workers-types" />
-
 interface Env {
   DB: D1Database;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { searchParams } = new URL(context.request.url);
+  const limit = parseInt(searchParams.get('limit') || '10');
   const category = searchParams.get('category');
-  const trending = searchParams.get('trending');
-  const featured = searchParams.get('featured');
-  const limit = searchParams.get('limit') || '20';
-  const offset = searchParams.get('offset') || '0';
-  
+  const featured = searchParams.get('featured') === 'true';
+  const trending = searchParams.get('trending') === 'true';
+  const authorId = searchParams.get('author_id');
+  const queryParam = searchParams.get('q');
+
   let query = `
-    SELECT a.*, au.name as author_name, au.avatar_url as author_avatar 
+    SELECT a.*, au.name as author_name, au.avatar_url as author_avatar, au.bio as author_bio, au.role as author_role
     FROM articles a 
-    JOIN authors au ON a.author_id = au.id 
-    WHERE 1=1
+    JOIN authors au ON a.author_id = au.id
   `;
-  let params: any[] = [];
-  
+  const params: any[] = [];
+  const conditions: string[] = [];
+
   if (category) {
-    query += ' AND a.category = ?';
+    conditions.push('category = ?');
     params.push(category);
   }
-
-  if (trending === 'true') {
-    query += ' AND a.is_trending = 1';
+  if (featured) {
+    conditions.push('is_featured = 1');
+  }
+  if (trending) {
+    conditions.push('is_trending = 1');
+  }
+  if (authorId) {
+    conditions.push('author_id = ?');
+    params.push(authorId);
+  }
+  if (queryParam) {
+    conditions.push('(title LIKE ? OR excerpt LIKE ? OR tags LIKE ?)');
+    const likeVal = `%${queryParam}%`;
+    params.push(likeVal, likeVal, likeVal);
   }
 
-  if (featured === 'true') {
-    query += ' AND a.is_featured = 1';
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
   }
-  
-  query += ' ORDER BY a.published_at DESC LIMIT ? OFFSET ?';
-  params.push(limit, offset);
-  
+
+  query += ' ORDER BY published_at DESC LIMIT ?';
+  params.push(limit);
+
   try {
     const { results } = await context.env.DB.prepare(query).bind(...params).all();
     return new Response(JSON.stringify(results), {

@@ -15,10 +15,11 @@ export function ArticleDetail() {
       setLoading(true);
       try {
         const res = await fetch(`/api/articles/${id}`);
-        const data = await res.json();
-        setArticle(data);
+        const data = await res.json() as NewsArticle;
+        setArticle(data && data.id ? data : null);
       } catch (err) {
         console.error(err);
+        setArticle(null);
       } finally {
         setLoading(false);
       }

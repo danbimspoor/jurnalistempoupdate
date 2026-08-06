@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="bg-black border-t border-white/10 pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand Section */}
           <div className="md:col-span-1 space-y-6">
             <Link to="/" className="flex flex-col">
@@ -48,15 +48,6 @@ export function Footer() {
               <li><Link to="/contact" className="text-white/40 text-sm hover:text-red-500 transition-colors">Kontak</Link></li>
               <li><Link to="/pedoman-media-siber" className="text-white/40 text-sm hover:text-red-500 transition-colors">Pedoman Media Siber</Link></li>
               <li><Link to="/privacy" className="text-white/40 text-sm hover:text-red-500 transition-colors">Kebijakan Privasi</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-6">
-            <h3 className="text-white font-black uppercase tracking-widest text-xs italic">Dukungan</h3>
-            <ul className="space-y-4 text-white/40 text-sm">
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4" /> redaksi@jurnalistempo.co.id</li>
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4" /> iklan@jurnalistempo.co.id</li>
-              <li>Jl. Jurnalisme No. 1, Jakarta Pusat, Indonesia</li>
             </ul>
           </div>
         </div>

@@ -32,11 +32,14 @@ export function Home() {
           trendingRes.json()
         ]);
 
-        setArticles(news);
-        setFeatured(feat);
-        setTrending(trend);
+        setArticles(Array.isArray(news) ? news : []);
+        setFeatured(Array.isArray(feat) ? feat : []);
+        setTrending(Array.isArray(trend) ? trend : []);
       } catch (err) {
         console.error(err);
+        setArticles([]);
+        setFeatured([]);
+        setTrending([]);
       } finally {
         setLoading(false);
       }

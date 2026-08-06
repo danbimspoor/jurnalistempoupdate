@@ -8,6 +8,8 @@ export interface NewsArticle {
   author_id: string;
   author_name?: string;
   author_avatar?: string;
+  author_bio?: string;
+  author_role?: string;
   published_at: string;
   image_url: string;
   is_featured: boolean;
