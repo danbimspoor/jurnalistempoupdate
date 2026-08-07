@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "jurnalistempo-db"
-database_id = "YOUR_DATABASE_ID"
+database_id = "c34d8391-3ff0-46e5-bafe-90f3fda7edd1"
 
 [[r2_buckets]]
 binding = "BUCKET"
