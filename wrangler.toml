@@ -1,4 +1,5 @@
 name = "jurnalistempoupdate"
+
 main = "src/index.ts"
 
 compatibility_date = "2026-08-12"
@@ -12,4 +13,4 @@ not_found_handling = "single-page-application"
 [[d1_databases]]
 binding = "DB"
 database_name = "jurnalistempo-db"
-database_id = "ISI_DATABASE_ID_D1_ANDA"
+database_id = "c34d8391-3ff0-46e5-bafe-90f3fda7edd1"
