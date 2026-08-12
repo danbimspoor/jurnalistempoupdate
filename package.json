@@ -7,7 +7,8 @@
     "dev": "concurrently -k -p \"[{name}]\" -n \"Vite,Wran\" -c \"cyan,magenta\" \"vite --port 3000 --host 0.0.0.0\" \"wrangler pages dev . --port 8788 --ip 0.0.0.0 --local --inspector-port 0\"",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "deploy": "npm run build && wrangler pages deploy dist"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
