@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Menu, X, Search, Bell, User } from 'lucide-react';
+import { Menu, X, Search, Bell, User, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { CATEGORIES } from '../types';
+import { useAuth } from './AuthContext';
 
 export function Header() {
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,9 +75,24 @@ export function Header() {
                 <Bell className="w-5 h-5" />
               </button>
 
-              <button className="hidden sm:block p-2 text-white/70 hover:text-red-500 transition-colors">
-                <User className="w-5 h-5" />
-              </button>
+              {user ? (
+                <Link 
+                  to="/admin" 
+                  className="hidden sm:flex items-center gap-2 p-2 text-white/70 hover:text-red-500 transition-colors"
+                  title="Dashboard Admin"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-tighter hidden xl:inline">Dashboard</span>
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="hidden sm:block p-2 text-white/70 hover:text-red-500 transition-colors"
+                  title="Login Admin"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+              )}
 
               {/* Mobile Menu Button */}
               <button
@@ -172,9 +189,24 @@ export function Header() {
               </nav>
               
               <div className="pt-8 border-t border-white/10 space-y-6">
-                <Link to="/about" className="block text-white/50 font-bold hover:text-white transition-colors">Tentang Kami</Link>
-                <Link to="/contact" className="block text-white/50 font-bold hover:text-white transition-colors">Kontak</Link>
-                <Link to="/sitemap" className="block text-white/50 font-bold hover:text-white transition-colors">Sitemap</Link>
+                {user ? (
+                  <>
+                    <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-red-500 font-bold hover:text-red-400 transition-colors">Admin Dashboard</Link>
+                    <button 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        // We could handle logout here but logout is in dashboard
+                      }} 
+                      className="block text-white/50 font-bold hover:text-white transition-colors"
+                    >
+                      Admin: {user.username}
+                    </button>
+                  </>
+                ) : (
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Login Admin</Link>
+                )}
+                <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Tentang Kami</Link>
+                <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Kontak</Link>
               </div>
             </div>
           </motion.div>

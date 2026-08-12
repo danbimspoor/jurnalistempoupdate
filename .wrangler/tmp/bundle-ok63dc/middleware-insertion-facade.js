@@ -1,8 +1,8 @@
-				import worker, * as OTHER_EXPORTS from "/app/applet/.wrangler/tmp/pages-CQVRHr/functionsWorker-0.9503279512842691.mjs";
+				import worker, * as OTHER_EXPORTS from "/app/applet/.wrangler/tmp/pages-MV2iwQ/functionsWorker-0.8936550342538834.mjs";
 				import * as __MIDDLEWARE_0__ from "/app/applet/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts";
 import * as __MIDDLEWARE_1__ from "/app/applet/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts";
 
-				export * from "/app/applet/.wrangler/tmp/pages-CQVRHr/functionsWorker-0.9503279512842691.mjs";
+				export * from "/app/applet/.wrangler/tmp/pages-MV2iwQ/functionsWorker-0.8936550342538834.mjs";
 				const MIDDLEWARE_TEST_INJECT = "__INJECT_FOR_TESTING_WRANGLER_MIDDLEWARE__";
 				export const __INTERNAL_WRANGLER_MIDDLEWARE__ = [
 					

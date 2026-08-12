@@ -36,3 +36,9 @@ export const CATEGORIES: Category[] = [
   'Hiburan',
   'Internasional'
 ];
+
+export interface User {
+  id: string;
+  username: string;
+  role: string;
+}

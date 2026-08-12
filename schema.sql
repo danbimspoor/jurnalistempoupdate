@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS authors;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE authors (
   id TEXT PRIMARY KEY,
@@ -7,6 +8,13 @@ CREATE TABLE authors (
   bio TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'Reporter'
+);
+
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT DEFAULT 'admin'
 );
 
 CREATE TABLE articles (
@@ -29,6 +37,9 @@ CREATE TABLE articles (
 INSERT INTO authors (id, name, bio, avatar_url, role) VALUES
 ('a1', 'Redaksi Utama', 'Tim redaksi pusat JurnalisTempo Update.', 'https://picsum.photos/seed/author1/200/200', 'Editor in Chief'),
 ('a2', 'Budi Santoso', 'Jurnalis senior spesialis ekonomi dan pasar modal.', 'https://picsum.photos/seed/author2/200/200', 'Senior Reporter');
+
+INSERT INTO users (id, username, password, role) VALUES
+('u1', 'admin', 'admin123', 'admin');
 
 INSERT INTO articles (id, title, slug, excerpt, content, category, author_id, image_url, is_featured, is_trending, tags) VALUES
 ('1', 'Indonesia Menuju Indonesia Emas 2045', 'indonesia-emas-2045', 'Visi jangka panjang Indonesia untuk menjadi negara maju di usia satu abad.', 'Konten lengkap mengenai visi Indonesia Emas 2045 yang mencakup pembangunan ekonomi, infrastruktur, dan sumber daya manusia...', 'Nasional', 'a1', 'https://picsum.photos/seed/indo2045/1200/800', 1, 1, 'Nasional,Ekonomi,MasaDepan'),
