@@ -36,18 +36,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // Create a simple session cookie with signature for security
+    // Create a simple session cookie
     const sessionData = { id: user.id, username: user.username, role: user.role };
-    const sessionStr = JSON.stringify(sessionData);
-    
-    // Simple signature using a secret (prefer environment variable)
-    const secret = (context.env as any).SESSION_SECRET || 'default-secret-change-me';
-    const msgUint8 = new TextEncoder().encode(sessionStr + secret);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    const cookieData = encodeURIComponent(JSON.stringify({ ...sessionData, sig: signature }));
+    const cookieData = encodeURIComponent(JSON.stringify(sessionData));
     const cookie = `session=${cookieData}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`;
 
     return new Response(JSON.stringify({ success: true, user: { id: user.id, username: user.username, role: user.role } }), {

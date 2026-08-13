@@ -5,7 +5,27 @@ interface Env {
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  const cookieHeader = context.request.headers.get('Cookie');
+  if (!cookieHeader) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  const cookies = Object.fromEntries(cookieHeader.split(';').map(c => {
+    const [key, ...value] = c.trim().split('=');
+    return [key, value.join('=')];
+  }));
+  const sessionCookie = cookies['session'];
+
+  if (!sessionCookie) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
   try {
+    const session = JSON.parse(decodeURIComponent(sessionCookie));
+    if (!session || session.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+    }
+
     const formData = await context.request.formData();
     const file = formData.get('file') as File;
 

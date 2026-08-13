@@ -35,7 +35,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPut: PagesFunction<Env> = async (context) => {
   const id = context.params.id as string;
   const cookieHeader = context.request.headers.get('Cookie');
-  const cookies = cookieHeader ? Object.fromEntries(cookieHeader.split('; ').map(c => c.split('='))) : {};
+  if (!cookieHeader) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  const cookies = Object.fromEntries(cookieHeader.split(';').map(c => {
+    const [key, ...value] = c.trim().split('=');
+    return [key, value.join('=')];
+  }));
   const sessionCookie = cookies['session'];
 
   if (!sessionCookie) {
@@ -44,7 +51,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 
   try {
     const session = JSON.parse(decodeURIComponent(sessionCookie));
-    if (session.role !== 'admin') {
+    if (!session || session.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 
@@ -88,7 +95,14 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
   const id = context.params.id as string;
   const cookieHeader = context.request.headers.get('Cookie');
-  const cookies = cookieHeader ? Object.fromEntries(cookieHeader.split('; ').map(c => c.split('='))) : {};
+  if (!cookieHeader) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  const cookies = Object.fromEntries(cookieHeader.split(';').map(c => {
+    const [key, ...value] = c.trim().split('=');
+    return [key, value.join('=')];
+  }));
   const sessionCookie = cookies['session'];
 
   if (!sessionCookie) {
@@ -97,7 +111,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 
   try {
     const session = JSON.parse(decodeURIComponent(sessionCookie));
-    if (session.role !== 'admin') {
+    if (!session || session.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 

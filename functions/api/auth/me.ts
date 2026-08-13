@@ -4,7 +4,17 @@ interface Env {
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const cookieHeader = context.request.headers.get('Cookie');
-  const cookies = cookieHeader ? Object.fromEntries(cookieHeader.split('; ').map(c => c.split('='))) : {};
+  if (!cookieHeader) {
+    return new Response(JSON.stringify({ user: null }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const cookies = Object.fromEntries(cookieHeader.split(';').map(c => {
+    const [key, ...value] = c.trim().split('=');
+    return [key, value.join('=')];
+  }));
   const sessionCookie = cookies['session'];
 
   if (!sessionCookie) {
@@ -16,27 +26,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   try {
     const session = JSON.parse(decodeURIComponent(sessionCookie));
-    const { sig, ...sessionData } = session;
+    const { id, username } = session;
 
-    if (!sig) throw new Error('Missing signature');
-
-    // Verify signature
-    const secret = (context.env as any).SESSION_SECRET || 'default-secret-change-me';
-    const sessionStr = JSON.stringify(sessionData);
-    const msgUint8 = new TextEncoder().encode(sessionStr + secret);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const expectedSig = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-    if (sig !== expectedSig) {
-      throw new Error('Invalid signature');
+    if (!id || !username) {
+      throw new Error('Invalid session data');
     }
     
     // STRICT VERIFICATION: Check if user still exists in database
     const user = await context.env.DB.prepare(
       'SELECT id, username, role FROM users WHERE id = ? AND username = ?'
     )
-      .bind(sessionData.id, sessionData.username)
+      .bind(id, username)
       .first() as any;
 
     if (!user) {
