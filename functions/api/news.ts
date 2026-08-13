@@ -70,7 +70,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const session = JSON.parse(decodeURIComponent(sessionCookie));
-    if (session.role !== 'admin') {
+    const { sig, ...sessionData } = session;
+
+    if (!sig) throw new Error('Missing signature');
+
+    // Verify signature
+    const secret = (context.env as any).SESSION_SECRET || 'default-secret-change-me';
+    const sessionStr = JSON.stringify(sessionData);
+    const msgUint8 = new TextEncoder().encode(sessionStr + secret);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const expectedSig = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (sig !== expectedSig || sessionData.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 

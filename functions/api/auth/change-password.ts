@@ -23,6 +23,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const session = JSON.parse(decodeURIComponent(sessionCookie));
+    const { sig, ...sessionData } = session;
+
+    if (!sig) throw new Error('Missing signature');
+
+    // Verify signature
+    const secret = (context.env as any).SESSION_SECRET || 'default-secret-change-me';
+    const sessionStr = JSON.stringify(sessionData);
+    const msgUint8 = new TextEncoder().encode(sessionStr + secret);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const expectedSig = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (sig !== expectedSig) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    }
+
     const { oldPassword, newPassword } = await context.request.json() as any;
 
     if (!oldPassword || !newPassword) {
@@ -36,7 +52,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const user = await context.env.DB.prepare(
       'SELECT password FROM users WHERE id = ?'
     )
-      .bind(session.id)
+      .bind(sessionData.id)
       .first() as any;
 
     const oldHashedPassword = await hashPassword(oldPassword);
