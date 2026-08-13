@@ -1,23 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'motion/react';
-import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus, Trash2, Edit, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { NewsArticle } from '../types';
+import { ArticleForm } from '../components/ArticleForm';
 
 export function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<NewsArticle | undefined>();
+
+  const fetchArticles = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/news?limit=50');
+      const data = await res.json();
+      setArticles(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch articles:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this article?')) return;
+    
+    try {
+      const res = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchArticles();
+      } else {
+        alert('Failed to delete article');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  };
+
   const stats = [
-    { label: 'Total Articles', value: '124', icon: FileText, color: 'text-blue-500' },
-    { label: 'Total Views', value: '45.2K', icon: BarChart3, color: 'text-green-500' },
-    { label: 'Active Reporters', value: '12', icon: UserIcon, color: 'text-purple-500' },
+    { label: 'Total Articles', value: articles.length.toString(), icon: FileText, color: 'text-blue-500' },
+    { label: 'Total Views', value: articles.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString(), icon: BarChart3, color: 'text-green-500' },
+    { label: 'Featured', value: articles.filter(a => a.is_featured).length.toString(), icon: UserIcon, color: 'text-purple-500' },
   ];
 
   return (
@@ -40,7 +78,13 @@ export function AdminDashboard() {
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-4"
         >
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-red-600/20 transition-all">
+          <button 
+            onClick={() => {
+              setEditingArticle(undefined);
+              setIsFormOpen(true);
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-red-600/20 transition-all"
+          >
             <Plus className="w-5 h-5" />
             New Article
           </button>
@@ -79,27 +123,63 @@ export function AdminDashboard() {
           <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden">
             <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Recent Articles</h2>
-              <button className="text-red-500 text-sm font-bold hover:underline">View All</button>
+              <button onClick={fetchArticles} className="text-red-500 text-sm font-bold hover:underline">Refresh</button>
             </div>
             <div className="p-8">
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center text-white/20">
-                        <FileText className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-medium group-hover:text-red-500 transition-colors">Visi Indonesia Emas 2045...</h3>
-                        <p className="text-white/40 text-xs mt-1">Published 2 hours ago • Nasional</p>
-                      </div>
-                    </div>
-                    <button className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-                      <Settings className="w-5 h-5 text-white/30" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {articles.length === 0 ? (
+                    <p className="text-white/40 text-center py-12">No articles found.</p>
+                  ) : (
+                    articles.map((article, i) => (
+                      <motion.div 
+                        key={article.id} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center text-white/20">
+                            {article.image_url ? (
+                              <img src={article.image_url} alt="" className="w-full h-full object-cover rounded-lg opacity-50" />
+                            ) : (
+                              <FileText className="w-6 h-6" />
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-medium group-hover:text-red-500 transition-colors line-clamp-1">{article.title}</h3>
+                            <p className="text-white/40 text-xs mt-1">
+                              {new Date(article.published_at!).toLocaleDateString()} • {article.category}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => {
+                              setEditingArticle(article);
+                              setIsFormOpen(true);
+                            }}
+                            className="p-2 hover:bg-white/5 rounded-lg transition-colors text-white/30 hover:text-white"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(article.id)}
+                            className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-white/30 hover:text-red-500"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -130,6 +210,16 @@ export function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isFormOpen && (
+          <ArticleForm 
+            article={editingArticle}
+            onClose={() => setIsFormOpen(false)}
+            onSave={fetchArticles}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -2,9 +2,7 @@ name = "jurnalistempoupdate"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-pages_build_output_dir = "./dist"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "jurnalistempo-db"
-database_id = "c34d8391-3ff0-46e5-bafe-90f3fda7edd1"
+database_id = "jurnalistempo-db"

@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler pages dev --port 3000 --ip 0.0.0.0 --proxy 3001 -- vite --port 3001 --host 0.0.0.0",
+    "dev": "sh -c 'wrangler pages dev --port 3000 --proxy 3001 -- vite --port 3001 --host 0.0.0.0'",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "deploy": "bun run build && npx wrangler pages deploy dist --project-name=jurnalistempoupdate"
+    "deploy": "bun run build && npx wrangler pages deploy dist --project-name=jurnalistempoupdate",
+    "migrate:prod": "npx wrangler d1 execute jurnalistempo-db --remote --file=migrations/0001_create_users_table.sql"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
