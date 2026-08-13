@@ -89,15 +89,28 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const data = await context.request.json() as any;
     const { title, slug, excerpt, content, category, author_id, image_url, is_featured, is_trending, tags } = data;
 
-    if (!title || !slug || !content || !category || !author_id) {
+    if (!title || !slug || !content || !category) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    }
+
+    // 1. Ensure default author 'a1' exists
+    await context.env.DB.prepare(`
+      INSERT OR IGNORE INTO authors (id, name, bio, avatar_url, role)
+      VALUES ('a1', 'Redaksi Utama', 'Tim redaksi pusat JurnalisTempo Update.', 'https://picsum.photos/seed/author1/200/200', 'Editor in Chief')
+    `).run();
+
+    // 2. Validate author_id or fallback to 'a1'
+    let finalAuthorId = author_id || 'a1';
+    const authorExists = await context.env.DB.prepare('SELECT id FROM authors WHERE id = ?').bind(finalAuthorId).first();
+    if (!authorExists) {
+      finalAuthorId = 'a1';
     }
 
     const id = crypto.randomUUID();
     await context.env.DB.prepare(`
       INSERT INTO articles (id, title, slug, excerpt, content, category, author_id, image_url, is_featured, is_trending, tags, published_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `).bind(id, title, slug, excerpt || '', content, category, author_id, image_url || null, is_featured ? 1 : 0, is_trending ? 1 : 0, tags || null).run();
+    `).bind(id, title, slug, excerpt || '', content, category, finalAuthorId, image_url || null, is_featured ? 1 : 0, is_trending ? 1 : 0, tags || null).run();
 
     return new Response(JSON.stringify({ success: true, id }), {
       status: 201,

@@ -51,11 +51,24 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
     const data = await context.request.json() as any;
     const { title, slug, excerpt, content, category, author_id, image_url, is_featured, is_trending, tags } = data;
 
+    // 1. Ensure default author 'a1' exists
+    await context.env.DB.prepare(`
+      INSERT OR IGNORE INTO authors (id, name, bio, avatar_url, role)
+      VALUES ('a1', 'Redaksi Utama', 'Tim redaksi pusat JurnalisTempo Update.', 'https://picsum.photos/seed/author1/200/200', 'Editor in Chief')
+    `).run();
+
+    // 2. Validate author_id or fallback to 'a1'
+    let finalAuthorId = author_id || 'a1';
+    const authorExists = await context.env.DB.prepare('SELECT id FROM authors WHERE id = ?').bind(finalAuthorId).first();
+    if (!authorExists) {
+      finalAuthorId = 'a1';
+    }
+
     const result = await context.env.DB.prepare(`
       UPDATE articles 
       SET title = ?, slug = ?, excerpt = ?, content = ?, category = ?, author_id = ?, image_url = ?, is_featured = ?, is_trending = ?, tags = ?
       WHERE id = ?
-    `).bind(title, slug, excerpt || '', content, category, author_id, image_url || null, is_featured ? 1 : 0, is_trending ? 1 : 0, tags || null, id).run();
+    `).bind(title, slug, excerpt || '', content, category, finalAuthorId, image_url || null, is_featured ? 1 : 0, is_trending ? 1 : 0, tags || null, id).run();
 
     if (result.meta.changes === 0) {
       return new Response(JSON.stringify({ error: 'Article not found' }), { status: 404 });
