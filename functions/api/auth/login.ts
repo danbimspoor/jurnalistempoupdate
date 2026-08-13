@@ -2,6 +2,13 @@ interface Env {
   DB: D1Database;
 }
 
+async function hashPassword(password: string) {
+  const msgUint8 = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { username, password } = await context.request.json() as any;
@@ -13,13 +20,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
+    const hashedPassword = await hashPassword(password);
+
+    // Support both plaintext (for legacy) and hashed passwords
     const user = await context.env.DB.prepare(
-      'SELECT id, username, role FROM users WHERE username = ? AND password = ?'
+      'SELECT id, username, role, password FROM users WHERE username = ?'
     )
-      .bind(username, password)
+      .bind(username)
       .first() as any;
 
-    if (!user) {
+    if (!user || (user.password !== password && user.password !== hashedPassword)) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },

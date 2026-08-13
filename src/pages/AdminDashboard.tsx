@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus, Trash2, Edit, Loader2 } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus, Trash2, Edit, Loader2, Key } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { NewsArticle } from '../types';
 import { ArticleForm } from '../components/ArticleForm';
+import { ChangePasswordForm } from '../components/ChangePasswordForm';
 
 export function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -13,6 +14,7 @@ export function AdminDashboard() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<NewsArticle | undefined>();
 
   const fetchArticles = async () => {
@@ -78,6 +80,13 @@ export function AdminDashboard() {
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-4"
         >
+          <button 
+            onClick={() => setIsPasswordModalOpen(true)}
+            className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all"
+          >
+            <Key className="w-5 h-5" />
+            Ganti Password
+          </button>
           <button 
             onClick={() => {
               setEditingArticle(undefined);
@@ -217,6 +226,11 @@ export function AdminDashboard() {
             article={editingArticle}
             onClose={() => setIsFormOpen(false)}
             onSave={fetchArticles}
+          />
+        )}
+        {isPasswordModalOpen && (
+          <ChangePasswordForm 
+            onClose={() => setIsPasswordModalOpen(false)}
           />
         )}
       </AnimatePresence>

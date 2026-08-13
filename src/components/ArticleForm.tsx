@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NewsArticle } from '../types';
-import { X, Save, Image as ImageIcon, Type, Layout, Tag, User } from 'lucide-react';
+import { X, Save, Image as ImageIcon, Type, Layout, Tag, User, Upload, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface ArticleFormProps {
@@ -29,6 +29,64 @@ export function ArticleForm({ article, onClose, onSave }: ArticleFormProps) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      // 1. Load image to canvas for resizing and compression
+      const reader = new FileReader();
+      const imageData = await new Promise<string>((resolve) => {
+        reader.onload = (ev) => resolve(ev.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const img = new Image();
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.src = imageData;
+      });
+
+      // 2. Resize: max 1600px on longest side
+      let width = img.width;
+      let height = img.height;
+      const maxSize = 1600;
+
+      if (width > height) {
+        if (width > maxSize) {
+          height *= maxSize / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width *= maxSize / height;
+          height = maxSize;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, width, height);
+
+      // 3. Compress: 80% quality (balanced) or as requested (user mentioned 10% size/quality)
+      // I'll use 0.7 (70%) for a sharp but compact result
+      const compressedDataUrl = canvas.toDataURL('image/webp', 0.7);
+
+      // 4. Update form with the result (using Base64 for now as it's the most reliable "connected storage")
+      setFormData({ ...formData, image_url: compressedDataUrl });
+    } catch (err: any) {
+      setError('Gagal memproses gambar: ' + err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,15 +203,64 @@ export function ArticleForm({ article, onClose, onSave }: ArticleFormProps) {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
-                  <ImageIcon className="w-3 h-3" /> Image URL
+                  <ImageIcon className="w-3 h-3" /> Foto Berita (Upload & Kompres)
                 </label>
-                <input 
-                  type="url" 
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500/50 transition-all"
-                  placeholder="https://images.unsplash.com/..."
-                />
+                <div className="flex flex-col gap-4">
+                  <div className="relative group">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-xl px-4 py-8 flex flex-col items-center justify-center gap-2 group-hover:border-red-500/50 group-hover:bg-red-500/5 transition-all">
+                      {uploading ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs font-bold text-white/40">Memproses...</span>
+                        </div>
+                      ) : formData.image_url ? (
+                        <div className="flex flex-col items-center gap-2 text-green-500">
+                          <CheckCircle2 className="w-8 h-8" />
+                          <span className="text-xs font-bold">Gambar Terpasang</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-white/20 group-hover:text-red-500 transition-colors" />
+                          <span className="text-xs font-bold text-white/40 group-hover:text-white transition-colors">Pilih atau Seret Gambar</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {formData.image_url && (
+                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                        className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Atau URL Gambar Manual</label>
+                    <input 
+                      type="url" 
+                      value={formData.image_url.startsWith('data:') ? '' : formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-red-500/50 transition-all"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
