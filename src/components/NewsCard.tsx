@@ -32,7 +32,7 @@ export function NewsCard({ article, featured = false }: NewsCardProps) {
           <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-4 group-hover:translate-x-2 transition-transform text-white">
             <Link to={`/article/${article.id}`}>{article.title}</Link>
           </h2>
-          <p className="text-white/60 text-sm max-w-lg mb-6 line-clamp-2">
+          <p className="text-white/80 text-sm max-w-lg mb-6 line-clamp-2">
             {article.excerpt}
           </p>
           <div className="flex items-center gap-3">

@@ -66,7 +66,7 @@ export function HeroSlider({ articles }: HeroSliderProps) {
                 </h2>
               </Link>
               
-              <p className="text-white/70 text-sm md:text-lg max-w-2xl font-medium leading-relaxed hidden md:block">
+              <p className="text-white/90 text-sm md:text-lg max-w-2xl font-medium leading-relaxed hidden md:block">
                 {active.excerpt}
               </p>
             </motion.div>

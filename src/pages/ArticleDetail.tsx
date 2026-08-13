@@ -78,11 +78,11 @@ export function ArticleDetail() {
             </div>
 
             <div className="space-y-4 pt-8 border-t border-white/10">
-              <div className="flex items-center gap-2 text-white/40 text-xs font-mono">
+              <div className="flex items-center gap-2 text-white/70 text-xs font-mono">
                 <Clock className="w-4 h-4" />
                 <span>{new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
               </div>
-              <div className="flex items-center gap-2 text-white/40 text-xs font-mono">
+              <div className="flex items-center gap-2 text-white/70 text-xs font-mono">
                 <Eye className="w-4 h-4" />
                 <span>{article.views} Pembaca</span>
               </div>
@@ -97,12 +97,12 @@ export function ArticleDetail() {
 
           {/* Article Content */}
           <div className="lg:col-span-3 space-y-12 bg-[#0a0a0a] p-8 md:p-12 shadow-2xl">
-            <p className="text-2xl font-bold text-white/80 italic leading-relaxed border-l-4 border-red-600 pl-8">
+            <p className="text-2xl font-bold text-white italic leading-relaxed border-l-4 border-red-600 pl-8">
               {article.excerpt}
             </p>
 
-            <div className="prose prose-invert prose-red max-w-none prose-p:text-lg prose-p:leading-loose prose-p:text-white/70">
-              <div className="whitespace-pre-wrap">
+            <div className="prose prose-invert prose-red max-w-none">
+              <div className="whitespace-pre-wrap text-lg leading-loose text-white">
                 {article.content}
               </div>
             </div>
