@@ -75,12 +75,29 @@ export function ArticleForm({ article, onClose, onSave }: ArticleFormProps) {
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0, width, height);
 
-      // 3. Compress: 80% quality (balanced) or as requested (user mentioned 10% size/quality)
-      // I'll use 0.7 (70%) for a sharp but compact result
-      const compressedDataUrl = canvas.toDataURL('image/webp', 0.7);
+      // Convert canvas to blob for backend upload
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => resolve(b!), 'image/webp', 0.7);
+      });
 
-      // 4. Update form with the result (using Base64 for now as it's the most reliable "connected storage")
-      setFormData({ ...formData, image_url: compressedDataUrl });
+      // 3. Upload to BACKEND
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', blob, 'image.webp');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json() as any;
+        throw new Error(errData.error || 'Upload backend gagal');
+      }
+
+      const data = await res.json() as any;
+
+      // 4. Update form with the result URL from backend
+      setFormData({ ...formData, image_url: data.url });
     } catch (err: any) {
       setError('Gagal memproses gambar: ' + err.message);
     } finally {
@@ -203,7 +220,7 @@ export function ArticleForm({ article, onClose, onSave }: ArticleFormProps) {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
-                  <ImageIcon className="w-3 h-3" /> Foto Berita (Upload & Kompres)
+                  <ImageIcon className="w-3 h-3" /> UPLOAD FOTO (Otomatis Kompres & Resize)
                 </label>
                 <div className="flex flex-col gap-4">
                   <div className="relative group">
@@ -213,7 +230,7 @@ export function ArticleForm({ article, onClose, onSave }: ArticleFormProps) {
                       onChange={handleImageUpload}
                       className="absolute inset-0 opacity-0 cursor-pointer z-10"
                     />
-                    <div className="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-xl px-4 py-8 flex flex-col items-center justify-center gap-2 group-hover:border-red-500/50 group-hover:bg-red-500/5 transition-all">
+                    <div className="w-full bg-white/5 border-2 border-dashed border-white/20 rounded-xl px-4 py-10 flex flex-col items-center justify-center gap-3 group-hover:border-red-600 group-hover:bg-red-600/5 transition-all">
                       {uploading ? (
                         <div className="flex flex-col items-center gap-2">
                           <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>

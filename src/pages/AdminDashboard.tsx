@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus, Trash2, Edit, Loader2, Key } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, FileText, BarChart3, Plus, Trash2, Edit, Loader2, Key, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { NewsArticle } from '../types';
 import { ArticleForm } from '../components/ArticleForm';
@@ -16,6 +16,22 @@ export function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<NewsArticle | undefined>();
+
+  const handleResetPassword = async () => {
+    if (!confirm('Apakah Anda yakin ingin me-reset password ke default (admin123)?')) return;
+    
+    try {
+      const res = await fetch('/api/auth/reset-password', { method: 'POST' });
+      const data = await res.json() as any;
+      if (res.ok) {
+        alert(data.message);
+      } else {
+        alert(data.error || 'Gagal reset password');
+      }
+    } catch (err) {
+      alert('Error: ' + err);
+    }
+  };
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -82,10 +98,17 @@ export function AdminDashboard() {
         >
           <button 
             onClick={() => setIsPasswordModalOpen(true)}
-            className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all"
+            className="bg-white/5 hover:bg-red-600/10 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all border border-red-500/30 hover:border-red-500"
           >
-            <Key className="w-5 h-5" />
+            <Key className="w-5 h-5 text-red-500" />
             Ganti Password
+          </button>
+          <button 
+            onClick={handleResetPassword}
+            className="bg-white/5 hover:bg-white/10 text-white/40 px-4 py-3 rounded-xl font-bold flex items-center gap-2 transition-all border border-white/5 hover:text-white"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Reset
           </button>
           <button 
             onClick={() => {
