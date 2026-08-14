@@ -75,7 +75,7 @@ export function Header() {
                 <Bell className="w-5 h-5" />
               </button>
 
-              {user ? (
+              {user && (
                 <Link 
                   to="/admin" 
                   className="hidden sm:flex items-center gap-2 p-2 text-white/70 hover:text-red-500 transition-colors"
@@ -83,14 +83,6 @@ export function Header() {
                 >
                   <LayoutDashboard className="w-5 h-5" />
                   <span className="text-[10px] font-bold uppercase tracking-tighter hidden xl:inline">Dashboard</span>
-                </Link>
-              ) : (
-                <Link 
-                  to="/login" 
-                  className="hidden sm:block p-2 text-white/70 hover:text-red-500 transition-colors"
-                  title="Login Admin"
-                >
-                  <User className="w-5 h-5" />
                 </Link>
               )}
 
@@ -189,7 +181,7 @@ export function Header() {
               </nav>
               
               <div className="pt-8 border-t border-white/10 space-y-6">
-                {user ? (
+                {user && (
                   <>
                     <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-red-500 font-bold hover:text-red-400 transition-colors">Admin Dashboard</Link>
                     <button 
@@ -202,8 +194,6 @@ export function Header() {
                       Admin: {user.username}
                     </button>
                   </>
-                ) : (
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Login Admin</Link>
                 )}
                 <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Tentang Kami</Link>
                 <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block text-white/50 font-bold hover:text-white transition-colors">Kontak</Link>
